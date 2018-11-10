@@ -47,7 +47,7 @@ clients = {}
 addresses = {}
 
 HOST = ''
-PORT = 8000
+PORT = int(input("Port : "))
 BUFSIZ = 1024
 ADDR = (HOST, PORT)
 
