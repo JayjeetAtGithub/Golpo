@@ -2,37 +2,35 @@ from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
 
 
+def format(message):
+    """Formats the message into bytes"""
+
+    return bytes(message, "utf-8")
+
+
 def accept_incoming_connections():
     """Sets up handling for incoming clients."""
 
     while True:
-        client, client_address = SERVER.accept()
+        client, client_address = server.accept()
         print("%s:%s has connected." % client_address)
-        client.send(
-            bytes("Greetings from the cave! Now type your name and press enter!", "utf8"))
-        addresses[client] = client_address
-        Thread(target=handle_client, args=(client,)).start()
+        clients[client] = 1
+        client_handle_thread = Thread(target=handle_client, args=(client,))
+        client_handle_thread.start()
 
 
 def handle_client(client):
     """Handles a single client connection."""
 
-    name = client.recv(BUFSIZ).decode("utf8")
-    welcome = 'Welcome %s! If you ever want to quit, type {quit} to exit.' % name
-    client.send(bytes(welcome, "utf8"))
-    msg = "%s has joined the chat!" % name
-    broadcast(bytes(msg, "utf8"))
-    clients[client] = name
-
     while True:
         msg = client.recv(BUFSIZ)
         if msg != bytes("{quit}", "utf8"):
-            broadcast(msg, name+": ")
+            broadcast(msg)
         else:
-            client.send(bytes("{quit}", "utf8"))
+            client.send(format("{quit}"))
             client.close()
             del clients[client]
-            broadcast(bytes("%s has left the chat." % name, "utf8"))
+            broadcast(format("Someone left the chat"))
             break
 
 
@@ -44,20 +42,16 @@ def broadcast(msg, prefix=""):
 
 
 clients = {}
-addresses = {}
 
-HOST = ''
-PORT = int(input("Port : "))
-BUFSIZ = 1024
-ADDR = (HOST, PORT)
-
-SERVER = socket(AF_INET, SOCK_STREAM)
-SERVER.bind(ADDR)
 
 if __name__ == "__main__":
-    SERVER.listen(5)
-    print("Waiting for connection...")
-    ACCEPT_THREAD = Thread(target=accept_incoming_connections)
-    ACCEPT_THREAD.start()
-    ACCEPT_THREAD.join()
-    SERVER.close()
+    HOST = ''
+    PORT = int(input("PORT : "))
+    BUFSIZ = 1024
+    ADDR = (HOST, PORT)
+    server = socket(AF_INET, SOCK_STREAM)
+    server.bind(ADDR)
+    server.listen(5)
+    print("Echo server started on %s..." % PORT)
+    accept_incoming_connections()
+    server.close()

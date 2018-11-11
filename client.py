@@ -63,12 +63,12 @@ send_button.pack()
 window.protocol("WM_DELETE_WINDOW", on_closing)
 # ---- GUI ----
 
-HOST = 'localhost'
-PORT = int(input('Port : '))
-
-ADDRESS = (HOST, PORT)
-client_socket = socket(AF_INET, SOCK_STREAM)
-client_socket.connect(ADDRESS)
-recieve_thread = Thread(target=recieve)
-recieve_thread.start()
-tkinter.mainloop()
+if __name__ == "__main__":
+    HOST = ''
+    PORT = int(input('PORT : '))
+    ADDRESS = (HOST, PORT)
+    client_socket = socket(AF_INET, SOCK_STREAM)
+    client_socket.connect(ADDRESS)
+    recieve_thread = Thread(target=recieve)
+    recieve_thread.start()
+    tkinter.mainloop()
